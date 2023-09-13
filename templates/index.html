@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Plouf Plouf</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Plouf Plouf</h1>
+        <form id="add-player-form">
+            <div class="form-group">
+                <label for="player_name">Nom du joueur :</label>
+                <input type="text" id="player_name" name="player_name" required>
+            </div>
+            <div class="centered-btn">
+                <button type="submit" class="btn"><i class="fas fa-plus"></i>Ajouter</button>
+            </div>
+        </form>
+        <div class="players-list">
+            <ul></ul>
+        </div>
+        <form id="draw-form">
+            <div class="form-group">
+                <label for="num_winners">Nombre de gagnants :</label>
+                <input type="number" id="num_winners" name="num_winners" min="1" required>
+            </div>
+            <div class="form-group">
+                <label for="num_draws">Nombre de tirages :</label>
+                <input type="number" id="num_draws" name="num_draws" min="1" required>
+            </div>
+            <div class="centered-btn">
+                <button type="submit" class="btn"><i class="fas fa-dice"></i>Tirer au sort</button>
+            </div>
+        </form>
+        <ul class="draw-results"></ul>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+    const addPlayerForm = document.getElementById('add-player-form');
+    const drawForm = document.getElementById('draw-form');
+    const playersList = document.querySelector('.players-list ul');
+    const drawResults = document.querySelector('.draw-results');
+    const players = [];
+
+    addPlayerForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const playerNameInput = document.getElementById('player_name');
+        const playerName = playerNameInput.value.trim();
+        if (playerName) {
+            players.push(playerName);
+            renderPlayersList();
+            playerNameInput.value = '';
+            playerNameInput.focus();
+        }
+    });
+
+    function renderPlayersList() {
+        playersList.innerHTML = '';
+        players.forEach(function (player) {
+            const li = document.createElement('li');
+            li.innerHTML = `${player}<i class="fas fa-times-circle"></i>`;
+            playersList.appendChild(li);
+        });
+    }
+
+    playersList.addEventListener('click', function (e) {
+        if (e.target.classList.contains('fa-times-circle')) {
+            const playerName = e.target.parentNode.firstChild.textContent;
+            const playerIndex = players.indexOf(playerName);
+            players.splice(playerIndex, 1);
+            renderPlayersList();
+        }
+    });
+
+    drawForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const numWinnersInput = document.getElementById('num_winners');
+        const numDrawsInput = document.getElementById('num_draws');
+
+        const numWinners = parseInt(numWinnersInput.value);
+        const numDraws = parseInt(numDrawsInput.value);
+
+        if (numWinners > 0 && numDraws > 0) {
+            if (numWinners <= players.length) {
+                drawResults.innerHTML = '';
+                for (let i = 1; i <= numDraws; i++) {
+                    const winners = getRandomWinners(numWinners);
+                    const drawResult = document.createElement('li');
+                    drawResult.textContent = `Tirage ${i} : ${winners.join(', ')}`;
+                    drawResults.appendChild(drawResult);
+                }
+                numWinnersInput.value = '';
+                numDrawsInput.value = '';
+                drawNameInput.value = '';
+            } else {
+                alert('Le nombre de gagnants spécifié est supérieur au nombre de joueurs.');
+            }
+        } else {
+            alert('Veuillez entrer un nombre de gagnants et un nombre de tirages valides.');
+        }
+    });
+
+    function getRandomWinners(numWinners) {
+        const shuffledPlayers = players.slice().sort(() => Math.random() - 0.5);
+        return shuffledPlayers.slice(0, numWinners);
+    }
+});
+
+    </script>
+</body>
+<style>
+  * {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(to bottom, #24243e, #302b63);
+    color: #fff;
+}
+
+.container {
+    max-width: 500px;
+    margin: 0 auto;
+    background-color: #28294a;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+h1 {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 18px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #f2f2f2;
+    color: #333;
+    font-size: 16px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 16px;
+    background-color: #43d8c9;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.btn i {
+    margin-right: 5px;
+}
+
+.centered-btn {
+    text-align: center;
+}
+
+.players-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.players-list ul li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f2f2f2;
+    border-radius: 4px;
+}
+.players-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding: 5px;
+    font-size: 16px;
+    color: #000; /* Ajoutez cette ligne pour spécifier la couleur du texte en noir */
+}
+
+
+.players-list ul li i {
+    color: #ff6b6b;
+    cursor: pointer;
+}
+
+.draw-results {
+    margin-top: 30px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.draw-results li {
+    font-size: 18px;
+    padding: 5px 0;
+    border-bottom: 1px solid #fff;
+}
+
+</style>
+</html>
